@@ -1,0 +1,105 @@
+# User
+
+type User {
+  id: ID!
+  firstName: String
+  lastName: String
+  display: String
+  fullName: String
+  email: String
+  posts: [Post]
+  friends: [Profile]
+  friendRequestTo: [Profile]
+  friendRequestBy: [Profile]
+  user: User
+}
+
+type Token {
+  user: User
+  token: String
+}
+
+type RequestProfile {
+  id: ID!
+  firstName: String
+  lastName: String
+  display: String
+  fullName: String
+  userId: String
+}
+
+type FriendRequests {
+  id: ID!
+  friendRequestTo: [RequestProfile]
+  friendRequestBy: [RequestProfile]
+}
+
+type Friends {
+  friends: [RequestProfile]
+}
+
+# Post
+
+type Post {
+  id: ID!
+  data: String
+  image: String
+  createdAt: String!
+  likes: [Profile]
+  comments: [Comment]
+  author: Profile!
+}
+
+type LikeDislike {
+  likedBy: [Profile]
+  likes: Int!
+}
+
+type Comment {
+  id: ID!
+  data: String
+  post: Post
+  inReplyTo: Comment
+  createdAt: String!
+  author: Profile
+}
+
+# Queries and Mutations
+
+type Query {
+  getAllUsers: [User]
+  getUser(userId: String): User
+  searchUser(query: String): [SearchedUser]
+  login(email: String, password: String): Token
+  oauthLogin(idToken: String!): Token
+  getAllPosts: [Post]
+  getAllPostsByUser(userId: String!): [Post]
+  getFeed: [Post]
+}
+
+type Mutation {
+  signUp(email: String, password: String): Token
+  oauthSignUp(idToken: String!): Token
+  createProfile(
+    firstName: String
+    lastName: String
+    display: String
+  ): BaseProfile
+  updateProfile(
+    firstName: String
+    lastName: String
+    display: String
+  ): BaseProfile
+  deleteCurrentUser: Profile
+  createPost(data: String, image: String): Post
+  likePost(postId: String): LikeDislike
+  dislikePost(postId: String): LikeDislike
+  createCommentOnPost(postId: String): Comment
+  createCommentOnComment(postId: String, commentId: String): Comment
+  deleteComment(commentId: String): Comment
+  deletePost(postId: String): Post
+  sendFriendRequest(userId: String): FriendRequests
+  cancelFriendRequest(userId: String): FriendRequests
+  acceptFriendRequest(userId: String): Friends
+  unfriendUser(userId: String): Friends
+}
