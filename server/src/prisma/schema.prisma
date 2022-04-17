@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String      @id @default(uuid())
+  email           String      @unique
+  password        String?
+  idToken         String?
+  type            AccountType @default(NATIVE)
+  firstName       String
+  lastName        String
+  displayImage    String?
+  posts           Post[]      @relation("author")
+  likes           Post[]      @relation("likes")
+  friends         User[]      @relation("friends", references: [id])
+  friendsRelation User[]      @relation("friends", references: [id])
+  friendRequestTo User[]      @relation("friendrequests", references: [id])
+  friendRequestBy User[]      @relation("friendrequests", references: [id])
+  comments        Comment[]
+
+  @@map("users")
+}
+
+model Post {
+  id        String    @id @default(uuid())
+  text      String?
+  image     String?
+  createdAt DateTime  @default(now())
+  author    User      @relation("author", fields: [authorId], references: [id])
+  authorId  String
+  likedBy   User[]    @relation("likes")
+  comments  Comment[]
+
+
+  @@map("posts")
+}
+
+model Comment {
+  id        String    @id @default(uuid())
+  data      String
+  createdAt DateTime  @default(now())
+  post      Post      @relation(fields: [postId], references: [id])
+  postId    String
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  String
+  inReplyTo Comment[] @relation("nestedComment")
+  replies   Comment[] @relation("nestedComment")
+
+  @@map("comments")
+}
+
+enum AccountType {
+  NATIVE
+  GMAIL
+}
